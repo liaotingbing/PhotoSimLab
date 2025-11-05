@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkphoto_sim_lab=globalThis.webpackChunkphoto_sim_lab||[]).push([[7607],{9049:o=>{o.exports=JSON.parse('{"metadata":{"permalink":"/PhotoSim/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":5,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);
