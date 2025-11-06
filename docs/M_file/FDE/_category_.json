@@ -2,6 +2,7 @@
   "label": "FDE ",
   "position": 1,
   "link": {
-    "type": "generated-index"
+    "type": "generated-index",
+    "description": "有限差分本征模式（FDE）相关文档"
   }
 }

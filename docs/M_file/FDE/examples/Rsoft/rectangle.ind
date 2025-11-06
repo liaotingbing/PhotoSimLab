@@ -1,0 +1,18 @@
+
+alpha = 0
+background_index = 1.45
+delta = 0.1
+dimension = 3
+eim = 0
+free_space_wavelength = 1.55
+height = width
+k0 = (2*pi)/free_space_wavelength
+launch_tilt = 1
+sim_tool = ST_BEAMPROP
+structure = STRUCT_CHANNEL
+width = 1
+
+
+
+
+

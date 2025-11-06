@@ -1,0 +1,4 @@
+#This file is generated automatically.  Do not attempt to edit it!
+ft=4 ext=.nef fname=bptmp.nef cols=[X,Y1,Y2] xnames=['mode index'] wnames=['neff_{r}','neff_{i}'] num_modes=1 mode_min=0 mode_max=0 syms_only=1
+ft=8 ext=m00 fname=bptmp.m00 cols=[Y+] xnames=['X','Y'] wnames=[OUTPUT_FORMAT_NAMES] header=[skip,skip,data=XGRID:ZPOS:FORMAT:neffr:neffi,data=YGRID]
+ft=8 ext=n00 fname=bptmp.n00 cols=[Y+] xnames=['X','Y'] wnames=[OUTPUT_FORMAT_NAMES] header=[skip,skip,data=XGRID:ZPOS:FORMAT:neffr:neffi,data=YGRID]

@@ -1,0 +1,18 @@
+
+clc;
+clear;
+S = "FDE::data::material";
+I = getresult(S,"index");
+
+
+ix = pinch(I.index_x);
+
+write("index_x.txt" , num2str(ix) ,"overwrite");
+
+iy = pinch(I.index_y);
+
+write("index_y.txt" , num2str(iy) ,"overwrite");
+
+iz = pinch(I.index_z);
+
+write("index_z.txt" , num2str(iz) ,"overwrite");
