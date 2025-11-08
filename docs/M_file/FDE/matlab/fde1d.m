@@ -1,10 +1,11 @@
 
-
 %% 
 
 close all ;
 clear ;
 clc ; 
+
+
 %% 物理参数
 EPS0 = 8.85e-12;
 MU0 = pi * 4e-7;
@@ -13,7 +14,7 @@ Z0 = sqrt(MU0/EPS0);
 
 %% 全局参数
 lx = 8;
-ly = 6;
+ly = 0;
 dx = 0.1;
 dy = 0.1;
 lambda = 1.55;
@@ -45,12 +46,12 @@ ym = y + dy / 2;
 
 s1 = [dsearchn(x, -w/2), dsearchn(x, w/2), dsearchn(y, -h/2), dsearchn(y, h/2)]';
 
-eps_x = backIndex * backIndex * ones(nx, ny);
-eps_y = backIndex * backIndex * ones(nx, ny);
-eps_z = backIndex * backIndex * ones(nx, ny);
+eps_x = backIndex^2 * ones(nx, ny);
+eps_y = backIndex^2 * ones(nx, ny);
+eps_z = backIndex^2 * ones(nx, ny);
 
 eps_x(s1(1):s1(2)-1, s1(3):s1(4)) = index^2;
-eps_y(s1(1):s1(2), s1(3):s1(4)-1) = index^2;
+eps_y(s1(1):s1(2), s1(3):s1(4)) = index^2;
 eps_z(s1(1):s1(2), s1(3):s1(4)) = index^2;
 
 % eps_x(s1(1):s1(2)-1, s1(3)) = 0.5 * (backIndex^2 + index^2);
@@ -75,16 +76,15 @@ for i = nx:nx:nt
     UX(i, :) = UX(i-1, :);
 end
 
-UY = spdiags([-I, I]/dy, [0, nx], nt, nt);
-UY(nt-nx+1:nt, :) = UY(nt-2*nx+1:nt-2*nx+nx, :);
+UY = sparse(nt, nt);
 
 VX = spdiags([-I, I]/dx, [-1, 0], nt, nt);
 for i = 1:nx:nt
     VX(i, :) = 0;
 end
 
-VY = spdiags([-I, I]/dy, [-nx, 0], nt, nt);
-VY(1:nx, :) = 0;
+VY = sparse(nt, nt);
+
 %% 构建矩阵
 
 EPS_X = spdiags(eps_x(:), 0, nt, nt);
@@ -146,82 +146,59 @@ F.Hy = reshape(hy, nx, ny, nmodes) * 1i / Z0;
 F.Hz = reshape(hz, nx, ny, nmodes) * 1i / Z0;
 
 %% 绘图
-fp = "images/fde/";
+fp = "images/fde1d/";
 mkdir(fp);
 
 for midx = 1:nmodes
 
     subplot(231)
-    pcolor(x, y, abs(F.Ex(:, :, midx))');
+    plot(x,real (F.Ex(:, :, midx))');
     xlabel("X (m)")
     ylabel("Y (m)")
-    subtitle("Ex Amplititude")
-    axis equal
-    shading interp
-    colormap jet
+    subtitle("Ex real")
     colorbar
 
     subplot(232)
-    pcolor(x, y, abs(F.Ey(:, :, midx))');
+    plot(x,real (F.Ey(:, :, midx))');
     xlabel("X (m)")
     ylabel("Y (m)")
-    subtitle("Ey Amplititude")
-    axis equal
-    shading interp
-    colormap jet
+    subtitle("Ey real")
     colorbar
 
     subplot(233)
-    pcolor(x, y, abs(F.Ez(:, :, midx))');
+    plot(x, imag(F.Ez(:, :, midx))');
     xlabel("X (m)")
     ylabel("Y (m)")
-    subtitle("Ez Amplititude")
-    axis equal
-    shading interp
-    colormap jet
+    subtitle("Ez imag")
     colorbar
 
     subplot(234)
-    pcolor(x, y, abs(F.Hx(:, :, midx))');
+    plot(x,  real(F.Hx(:, :, midx))');
     xlabel("X (m)")
     ylabel("Y (m)")
-    subtitle("Hx Amplititude")
-    axis equal
-    shading interp
-    colormap jet
+    subtitle("Hx real")
     colorbar
 
     subplot(235)
-    pcolor(x, y, abs(F.Hy(:, :, midx))');
+    plot(x,  real(F.Hy(:, :, midx))');
     xlabel("X (m)")
     ylabel("Y (m)")
-    subtitle("Hy Amplititude")
-    axis equal
-    shading interp
-    colormap jet
+    subtitle("Hy real")
     colorbar
 
     subplot(236)
-    pcolor(x, y, abs(F.Hz(:, :, midx))');
+    plot(x, imag(F.Hz(:, :, midx))');
     xlabel("X (m)")
     ylabel("Y (m)")
-    subtitle("Hz Amplititude")
-    axis equal
-    shading interp
-    colormap jet
+    subtitle("Hz imag")
     colorbar
-
 
     sgtitle("Mode #"+num2str(midx)+"="+num2str(neff(midx)))
 
     set(gcf ,"OuterPosition",get(0, "ScreenSize"))
 
     exportgraphics(gcf , fp + "Mode" + num2str(midx) + ".png")
-
-    %
-    % drawnow
-    %
-    % pause(0.1)
+ 
 
 end
 
@@ -229,39 +206,30 @@ end
 close
 
 subplot(221)
-pcolor(x, y, eps_x');
+plot(x, eps_x');
 xlabel("X (m)")
 ylabel("Y (m)")
 subtitle("eps x")
-axis equal
-shading interp
-colormap jet
 colorbar
 
 subplot(222)
-pcolor(x, y, eps_y');
+plot(x, eps_y');
 xlabel("X (m)")
 ylabel("Y (m)")
 subtitle("eps y")
-axis equal
-shading interp
-colormap jet
 colorbar
 
 subplot(223)
-pcolor(x, y, eps_z');
+plot(x, eps_z');
 xlabel("X (m)")
 ylabel("Y (m)")
 subtitle("eps z")
-axis equal
-shading interp
-colormap jet
 colorbar
 
 sgtitle("相对介电常数分布")
 
-set(gcf , "outerposition" , get(0,"ScreenSize"))
+set(gcf , "outerposition" , get(0, "ScreenSize"))
 
 exportgraphics(gcf , fp + "structure.png")
 
-save(fp + "neff.txt" , "neff","-ascii" ,"-double");
+save(fp+"neff.txt", "neff", "-ascii", "-double");

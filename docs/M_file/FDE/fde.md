@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 3
 ---
 
 # FDE 2D 案例
@@ -25,6 +25,7 @@ backIndex = 1.1;
 nmodes = 20;
 nmodes_max = 100;
 toler = 1e-6;
+search_index = 1.8;
 ```
 
 ### 结构
