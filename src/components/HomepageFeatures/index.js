@@ -12,8 +12,8 @@ const FeatureList = [
         used to get your website up and running quickly.
       </>
     ),
-    
-    link: '/docs/category/fde--1',
+    link: '/docs/M_file/FDE',
+ 
   },
   {
     title: 'FDTD',
