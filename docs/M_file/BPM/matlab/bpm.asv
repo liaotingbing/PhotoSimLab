@@ -1,0 +1,306 @@
+%%
+
+close all;
+clear ;
+clc;
+
+%%
+lx = 20;
+ly = 10;
+lz = 100;
+dx = 0.1;
+dy = 0.1;
+dz = 1;
+lambda = 1;
+input_mode_select = 1;
+pade_order = 1;
+alpha = 0.5;
+plot_incident_field = 0;
+plot_structure = 0;
+dynamic_neff = 1;
+load_neff = 1;
+%%
+k0 = 2 * pi / lambda;
+cx = round(lx/dx);
+cy = round(ly/dy);
+cz = round(lz/dz);
+
+nx = cx + 1;
+ny = cy + 1;
+nz = cz + 1;
+
+x = (-lx / 2:dx:lx / 2)';
+y = (-ly / 2:dy:ly / 2)';
+z = (0:dz:lz)';
+
+xm = x + dx / 2;
+ym = y + dy / 2;
+
+xs = [-lx / 2, lx / 2];
+ys = [-ly / 2, ly / 2];
+
+pade_s = ["(1 0)" "(1 1)" "(2 2)" "(3 3)" "(4 4)" "(5 5)" ];
+
+%%  广角参数
+Mm = {; ...
+    [1, 0] / 2; ...
+    [2, 0] / 4; ...
+    [4, 8, 0] / 16; ...
+    [6, 32, 32, 0] / 64; ...
+    [8, 80, 192, 128, 0] / 256; ...
+    [10, 160, 672, 1024, 512, 0] / 1024; ...
+    };
+
+Nn = {; ...
+    [0, 2] / 2; ...
+    [1, 4] / 4; ...
+    [1, 12, 16] / 16; ...
+    [1, 24, 80, 64] / 64; ...
+    [1, 40, 240, 448, 256] / 256; ...
+    [1, 60, 560, 1792, 2304, 1024] / 1024; ...
+    };
+%% 加载介电常数
+
+eps__ = importdata("../rsoft/bptmp.dat", " ", 5).data;
+eps_ = reshape(eps__, nx, nz, ny);
+eps = permute(eps_, [1, 3, 2]);
+ 
+% close all
+% volshow(permute(eps,[2 1 3]));
+if plot_structure
+    fp = "eps_xy.gif";
+    delete(fp);
+
+    figure
+    for sidx = 1:1:nz
+        pcolor(x, y, eps(:, :, sidx)')
+        xlabel("X (um)")
+        ylabel("Y (um)")
+        title("eps Z="+num2str(z(sidx))+"um")
+        colorbar
+        axis equal
+        % set(gcf , "OuterPosition" , get(0, "ScreenSize"))
+        % set(gcf,"position",[50,50,1000,700])
+        % drawnow
+        exportgraphics(gcf , fp , "Append",true)
+    end
+    close
+end
+
+%% 矩阵
+nt = nx * ny;
+I = ones(nt, 1);
+dx_ = k0 * dx;
+dy_ = k0 * dy;
+dz_ = k0 * dz;
+
+Ux = spdiags([-I, I]/dx_, [0, 1], nt, nt);
+for i = nx:nx:nt
+    Ux(nx, :) = Ux(nx-1, :);
+end
+
+Uy = spdiags([-I, I]/dy_, [0, nx], nt, nt);
+Uy(nt-nx+1:nt, :) = Uy(nt-2*nx+1:nt-nx, :);
+
+Vx = spdiags([-I, I]/dx_, [-1, 0], nt, nt);
+for i = 1:nx:nt
+    Vx(i, :) = 0;
+end
+
+Vy = spdiags([-I, I]/dy_, [-nx, 0], nt, nt);
+Vy(1:nx, :) = 0;
+
+
+%% 吸收边界
+layer=10;
+m=3;
+R0 = 1e-8;
+sigma_x = (m+1)*lambda/(4*pi*dx)*log(R0);
+sigma_y = (m+1)*log(R0)/2/dx_/layer;
+
+sx = ones(nx,ny);
+sy = ones(nx,ny);
+
+sx(1:layer,:) = 1+1i*sigma_x*((layer:-1:1)'/layer).^m*ones(1,ny) ;
+sx(nx:-1:nx-layer+1,:) = 1+1i*sigma_x*((layer:-1:1)'/layer).^m*ones(1,ny);
+
+sy(:,1:layer)= 1+1i*sigma_y*ones(nx,1)*((layer:-1:1)/layer).^m  ;
+sy(:,ny:-1:ny-layer+1)= 1+1i*sigma_y*ones(nx,1)*((layer:-1:1)/layer).^m  ;
+
+sx_ux = interp1(x , sx , xm , "linear","extrap");
+sy_uy = interp1(y,sy',ym,"linear","extrap")';
+
+sx_vx = sx;
+sy_vy = sy;
+
+Ux = spdiags(sx_ux(:),0,nt,nt)*Ux;
+Uy = spdiags(sy_uy(:),0,nt,nt)*Uy;
+Vx = spdiags(sx_vx(:),0,nt,nt)*Vx;
+Vy = spdiags(sy_vy(:),0,nt,nt)*Vy;
+ 
+%% 写入文件
+
+fp_et = "Pade_" + num2str(pade_order) + "_Et.gif";
+delete(fp_et);
+
+%%
+if load_neff
+
+    neff_list = importdata("neff_list.dat");
+
+end
+
+%%
+
+
+for cidx = 1:nz
+    %% 计算输入场
+
+    eps_z = eps(:, :, cidx);
+    eps_x = interp1(x, eps_z, xm, "makima", "extrap");
+    eps_y = interp1(y, eps_z', ym, "makima", "extrap")';
+
+    EPS_X = spdiags(eps_x(:), 0, nt, nt);
+    EPS_Y = spdiags(eps_y(:), 0, nt, nt);
+    EPS_Z = spdiags(eps_z(:), 0, nt, nt);
+
+    MU_X = speye(nt);
+    MU_Y = speye(nt);
+    MU_Z = speye(nt);
+
+    Pxx = -Ux * inv(EPS_Z) * Vy;
+    Pxy = Ux * inv(EPS_Z) * Vx + MU_Y;
+    Pyx = -Uy * inv(EPS_Z) * Vy - MU_X;
+    Pyy = Uy * inv(EPS_Z) * Vx;
+
+    P = [Pxx, Pxy; Pyx, Pyy];
+
+    Qxx = -Vx * inv(MU_Z) * Uy;
+    Qxy = Vx * inv(MU_Z) * Ux + EPS_Y;
+    Qyx = -Vy * inv(MU_Z) * Uy - EPS_X;
+    Qyy = Vy * inv(MU_Z) * Ux;
+
+    Q = [Qxx, Qxy; Qyx, Qyy];
+
+    if cidx == 1 || (dynamic_neff && ~load_neff)
+        nmodes_max = 50;
+        [et_, d] = eigs(-P*Q, nmodes_max, max(eps_z, [], "all"));
+        neff_ = sqrt(diag(d));
+        sd = ones(nmodes_max, 1);
+        for i = 1:nmodes_max - 1
+            if abs(neff_(i)-neff_(i+1)) < 1e-5
+                % sd(i) = 0;
+                % sd(i+1) = 0;
+            end
+        end
+        neff = neff_(sd > 0);
+        et = et_(:, sd > 0);
+        ex = reshape(et(1:nt, :), nx, ny, []);
+        ey = reshape(et(nt+1:2*nt, :), nx, ny, []);
+        %%
+
+        ex_inc = ex(:, :, input_mode_select);
+        ey_inc = ey(:, :, input_mode_select);
+
+        if cidx == 1
+            phi = et(:, input_mode_select);
+        end
+
+        K0 = neff(input_mode_select);
+
+        if plot_incident_field && cidx == 1
+            figure
+            subplot(211)
+            pcolor(xm, y, ex_inc')
+            title("Ex")
+            xlabel("X (um)")
+            ylabel("Y (um)")
+            shading interp
+            colormap jet
+            colorbar
+            axis equal
+
+            subplot(212)
+            pcolor(x, ym, ey_inc')
+            title("Ey")
+            xlabel("X (um)")
+            ylabel("Y (um)")
+            shading interp
+            colormap jet
+            colorbar
+            axis equal
+
+            sgtitle("横向电场 模式#"+num2str(input_mode_select)+" 有效折射率="+num2str(K0))
+            % set(gcf , "ourt" , get(0, "ScreenSize"))
+            % set(gcf , "Position",[50,50 1200 800])
+            exportgraphics(gcf , "incident_eletric_field.png");
+            close;
+        end
+
+    end
+
+    if load_neff
+        K0 = neff_list(cidx);
+    end
+
+
+    fprintf("K0=%d\n", K0);
+
+    %%
+
+    SP = -speye(2*nt) - P * Q / K0^2;
+    M = Mm{pade_order};
+    N = Nn{pade_order};
+
+    a_ = N - 1i * K0 * dz_ * (1 - alpha) * M;
+    b_ = N + 1i * K0 * dz_ * (alpha) * M;
+
+    a = -1 ./ roots(a_);
+    b = -1 ./ roots(b_);
+
+    for wi = 1:length(a)
+        phi = (speye(2*nt) + b(wi) * SP) \ ((speye(2*nt) + a(wi) * SP) * phi);
+    end
+
+    subplot(211)
+    pcolor(xm, y, abs(reshape(phi(1:nt), nx, ny))');
+    title("Ex Amplititude Z="+num2str(z(cidx))+" um")
+    xlabel("X (um)")
+    ylabel("Y (um)")
+    shading interp
+    colormap jet
+    colorbar
+    axis equal
+    subplot(212)
+    pcolor(x, ym, abs(reshape(phi(nt+1:2*nt), nx, ny))');
+    title("Ey Amplititude Z="+num2str(z(cidx))+" um")
+    xlabel("X (um)")
+    ylabel("Y (um)")
+    shading interp
+    colormap jet
+    colorbar
+    axis equal
+    sgtitle("Pade=" +  pade_s(pade_order))
+    
+    % set(gcf ,"OuterPosition",get(0, "ScreenSize"))
+    
+    % drawnow;
+    exportgraphics(gcf , fp_et , "Append",true)
+
+    Field.Ex(:, cidx) = phi;
+    Field.Ey(:, cidx) = phi;
+    Field.neff(cidx, 1) = K0;
+
+
+end
+%%
+neff_list = Field.neff;
+save("neff_list.dat", "neff_list", "-ascii")
+
+%% 
+
+plot(z , neff_list)
+
+xlabel("Z (um)")
+ylabel("有效折射率")
+exportgraphics(gcf , "effective_neff.png" )

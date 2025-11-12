@@ -3,7 +3,6 @@
 close all;
 clear ;
 clc;
-
 %%
 lx = 20;
 ly = 10;
@@ -16,9 +15,10 @@ input_mode_select = 1;
 pade_order = 6;
 alpha = 0.5;
 plot_incident_field = 0;
-plot_structure = 1;
+plot_structure = 0;
 dynamic_neff = 1;
 load_neff = 1;
+
 %%
 k0 = 2 * pi / lambda;
 cx = round(lx/dx);
@@ -39,8 +39,7 @@ ym = y + dy / 2;
 xs = [-lx / 2, lx / 2];
 ys = [-ly / 2, ly / 2];
 
-pade_s = ["(1 0)" "(1 1)" "(2 2)" "(3 3)" "(4 4)" "(5 5)" ];
-
+pade_s = ["(1 0)", "(1 1)", "(2 2)", "(3 3)", "(4 4)", "(5 5)"];
 %%  广角参数
 Mm = {; ...
     [1, 0] / 2; ...
@@ -59,12 +58,13 @@ Nn = {; ...
     [1, 40, 240, 448, 256] / 256; ...
     [1, 60, 560, 1792, 2304, 1024] / 1024; ...
     };
+
 %% 加载介电常数
 
 eps__ = importdata("../rsoft/bptmp.dat", " ", 5).data;
 eps_ = reshape(eps__, nx, nz, ny);
 eps = permute(eps_, [1, 3, 2]);
- 
+
 % close all
 % volshow(permute(eps,[2 1 3]));
 if plot_structure
@@ -86,7 +86,6 @@ if plot_structure
     end
     close
 end
-
 %% 矩阵
 nt = nx * ny;
 I = ones(nt, 1);
@@ -109,22 +108,51 @@ end
 
 Vy = spdiags([-I, I]/dy_, [-nx, 0], nt, nt);
 Vy(1:nx, :) = 0;
-%%
+%% 吸收边界
+layer = 10;
+m = 3;
+R0 = 1e-8;
+sigma_x = (m + 1)   / (2  * dx_ * layer) * log(R0);
+sigma_y = (m + 1)   / (2  * dy_* layer) * log(R0);
 
-fp_et = "Pade_" + num2str(pade_order) + "_Et.gif";
+sx = ones(nx, ny);
+sy = ones(nx, ny);
+
+rho = ((layer:-1:1)/layer)'.^m;
+
+sx(1:layer, :) = 1 + 1i * sigma_x *rho * ones(1, ny);
+sx(nx:-1:nx-layer+1, :) = 1 + 1i * sigma_x *rho * ones(1, ny);
+
+sy(:, 1:layer) = 1 + 1i * sigma_y * ones(nx, 1) * rho';
+sy(:, ny:-1:ny-layer+1) = 1 + 1i * sigma_y * ones(nx, 1) * rho';
+
+sx_ux = 1./interp1(x, sx, xm, "spline", "extrap");
+sy_uy = 1./interp1(y, sy.', ym, "spline", "extrap").';
+% sx_ux(nx,:) = sx_ux(nx-1,:);
+% sy_uy(:,ny) = sy_uy(:,ny-1);
+
+sx_vx = 1./sx;
+sy_vy = 1./sy;
+
+Ux = spdiags(sx_ux(:), 0, nt, nt) * Ux;
+Uy = spdiags(sy_uy(:), 0, nt, nt) * Uy;
+Vx = spdiags(sx_vx(:), 0, nt, nt) * Vx;
+Vy = spdiags(sy_vy(:), 0, nt, nt) * Vy;
+%% 写入文件
+
+fp_et = "Pade_" + num2str(pade_order) + "_pml_Et.gif";
 delete(fp_et);
-
 %%
 if load_neff
 
     neff_list = importdata("neff_list.dat");
 
 end
-
 %%
 
 
 for cidx = 1:nz
+
     %% 计算输入场
 
     eps_z = eps(:, :, cidx);
@@ -168,6 +196,7 @@ for cidx = 1:nz
         et = et_(:, sd > 0);
         ex = reshape(et(1:nt, :), nx, ny, []);
         ey = reshape(et(nt+1:2*nt, :), nx, ny, []);
+
         %%
 
         ex_inc = ex(:, :, input_mode_select);
@@ -216,7 +245,6 @@ for cidx = 1:nz
 
 
     fprintf("K0=%d\n", K0);
-
     %%
 
     SP = -speye(2*nt) - P * Q / K0^2;
@@ -251,27 +279,32 @@ for cidx = 1:nz
     colormap jet
     colorbar
     axis equal
-    sgtitle("Pade=" +  pade_s(pade_order))
-    
+    sgtitle("Pade="+pade_s(pade_order))
+
     % set(gcf ,"OuterPosition",get(0, "ScreenSize"))
-    
+
     % drawnow;
     exportgraphics(gcf , fp_et , "Append",true)
 
-    Field.Ex(:, cidx) = phi;
-    Field.Ey(:, cidx) = phi;
+    Field.Ex(:, :,cidx) =reshape(phi(1:nt) , nx , ny)  ;
+    Field.Ey(:, :,cidx) = reshape(phi(nt+1:2*nt) , nx , ny)  ;
     Field.neff(cidx, 1) = K0;
 
 
 end
+
 %%
 neff_list = Field.neff;
 save("neff_list.dat", "neff_list", "-ascii")
+%%
 
-%% 
-
-plot(z , neff_list)
+plot(z, neff_list)
 
 xlabel("Z (um)")
 ylabel("有效折射率")
-exportgraphics(gcf , "effective_neff.png" )
+exportgraphics(gcf , "effective_neff.png")
+
+
+%% 
+
+% volshow(abs(Field.Ex))

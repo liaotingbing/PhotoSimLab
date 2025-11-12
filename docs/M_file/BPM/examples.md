@@ -8,7 +8,7 @@ sidebar_position: 2
 ## 结构
 
 ![alt text](matlab/st.png)
-![alt text](matlab/eps_xy.gif)
+<!-- ![alt text](matlab/eps_xy.gif) -->
 
 
 ## 入射电场
@@ -18,7 +18,14 @@ sidebar_position: 2
 
 ![alt text](matlab/effective_neff.png)
 
-## 结果
-![alt text](matlab/Pade_1_Et.gif)
-![alt text](matlab/Pade_3_Et.gif)
-![alt text](matlab/Pade_6_Et.gif)
+## PEC边界结果
+
+![text](matlab/Pade_1_pec_Et.gif) 
+![text](matlab/Pade_3_pec_Et.gif) 
+![text](matlab/Pade_6_pec_Et.gif)
+
+## PML边界结果
+
+![alt text](matlab/Pade_1_pml_Et.gif)
+![alt text](matlab/Pade_3_pml_Et.gif)
+![alt text](matlab/Pade_6_pml_Et.gif)
