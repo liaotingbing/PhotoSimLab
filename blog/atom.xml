@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="atom.xsl"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://liaotingbing.github.io/PhotoSim/blog</id>
+    <id>https://liaotingbing.github.io/PhotoSimLab/blog</id>
     <title>PhotoSimLab Blog</title>
     <updated>2021-08-26T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://liaotingbing.github.io/PhotoSim/blog"/>
+    <link rel="alternate" href="https://liaotingbing.github.io/PhotoSimLab/blog"/>
     <subtitle>PhotoSimLab Blog</subtitle>
     <entry>
         <title type="html"><![CDATA[Welcome]]></title>
-        <id>https://liaotingbing.github.io/PhotoSim/blog/welcome</id>
-        <link href="https://liaotingbing.github.io/PhotoSim/blog/welcome"/>
+        <id>https://liaotingbing.github.io/PhotoSimLab/blog/welcome</id>
+        <link href="https://liaotingbing.github.io/PhotoSimLab/blog/welcome"/>
         <updated>2021-08-26T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Docusaurus blogging features are powered by the blog plugin.]]></summary>
         <content type="html"><![CDATA[<p><a href="https://docusaurus.io/docs/blog" target="_blank" rel="noopener noreferrer" class="">Docusaurus blogging features</a> are powered by the <a href="https://docusaurus.io/docs/api/plugins/@docusaurus/plugin-content-blog" target="_blank" rel="noopener noreferrer" class="">blog plugin</a>.</p>
@@ -22,7 +22,7 @@
 <li class=""><code>2019-05-30-welcome/index.md</code></li>
 </ul>
 <p>A blog post folder can be convenient to co-locate blog post images:</p>
-<p><img decoding="async" loading="lazy" alt="Docusaurus Plushie" src="https://liaotingbing.github.io/PhotoSim/assets/images/docusaurus-plushie-banner-a60f7593abca1e3eef26a9afa244e4fb.jpeg" width="1500" height="500" class="img_ev3q"></p>
+<p><img decoding="async" loading="lazy" alt="Docusaurus Plushie" src="https://liaotingbing.github.io/PhotoSimLab/assets/images/docusaurus-plushie-banner-a60f7593abca1e3eef26a9afa244e4fb.jpeg" width="1500" height="500" class="img_ev3q"></p>
 <p>The blog supports tags as well!</p>
 <p><strong>And if you don't want a blog</strong>: just delete this directory, and use <code>blog: false</code> in your Docusaurus config.</p>]]></content>
         <author>
@@ -39,8 +39,8 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[MDX Blog Post]]></title>
-        <id>https://liaotingbing.github.io/PhotoSim/blog/mdx-blog-post</id>
-        <link href="https://liaotingbing.github.io/PhotoSim/blog/mdx-blog-post"/>
+        <id>https://liaotingbing.github.io/PhotoSimLab/blog/mdx-blog-post</id>
+        <link href="https://liaotingbing.github.io/PhotoSimLab/blog/mdx-blog-post"/>
         <updated>2021-08-01T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Blog posts support Docusaurus Markdown features, such as MDX.]]></summary>
         <content type="html"><![CDATA[<p>Blog posts support <a href="https://docusaurus.io/docs/markdown-features" target="_blank" rel="noopener noreferrer" class="">Docusaurus Markdown features</a>, such as <a href="https://mdxjs.com/" target="_blank" rel="noopener noreferrer" class="">MDX</a>.</p>
@@ -57,8 +57,8 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Long Blog Post]]></title>
-        <id>https://liaotingbing.github.io/PhotoSim/blog/long-blog-post</id>
-        <link href="https://liaotingbing.github.io/PhotoSim/blog/long-blog-post"/>
+        <id>https://liaotingbing.github.io/PhotoSimLab/blog/long-blog-post</id>
+        <link href="https://liaotingbing.github.io/PhotoSimLab/blog/long-blog-post"/>
         <updated>2019-05-29T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[This is the summary of a very long blog post,]]></summary>
         <content type="html"><![CDATA[<p>This is the summary of a very long blog post,</p>
@@ -88,8 +88,8 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[First Blog Post]]></title>
-        <id>https://liaotingbing.github.io/PhotoSim/blog/first-blog-post</id>
-        <link href="https://liaotingbing.github.io/PhotoSim/blog/first-blog-post"/>
+        <id>https://liaotingbing.github.io/PhotoSimLab/blog/first-blog-post</id>
+        <link href="https://liaotingbing.github.io/PhotoSimLab/blog/first-blog-post"/>
         <updated>2019-05-28T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Lorem ipsum dolor sit amet...]]></summary>
         <content type="html"><![CDATA[<p>Lorem ipsum dolor sit amet...</p>
@@ -107,10 +107,10 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Hello]]></title>
-        <id>https://liaotingbing.github.io/PhotoSim/blog/2011/01/09/Hello</id>
-        <link href="https://liaotingbing.github.io/PhotoSim/blog/2011/01/09/Hello"/>
+        <id>https://liaotingbing.github.io/PhotoSimLab/blog/2011/01/09/Hello</id>
+        <link href="https://liaotingbing.github.io/PhotoSimLab/blog/2011/01/09/Hello"/>
         <updated>2011-01-09T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[nihao]]></summary>
-        <content type="html"><![CDATA[<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="nihao">nihao<a href="https://liaotingbing.github.io/PhotoSim/blog/2011/01/09/Hello#nihao" class="hash-link" aria-label="Direct link to nihao" title="Direct link to nihao" translate="no">​</a></h3>]]></content>
+        <content type="html"><![CDATA[<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="nihao">nihao<a href="https://liaotingbing.github.io/PhotoSimLab/blog/2011/01/09/Hello#nihao" class="hash-link" aria-label="Direct link to nihao" title="Direct link to nihao" translate="no">​</a></h3>]]></content>
     </entry>
 </feed>
