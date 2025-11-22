@@ -36,14 +36,23 @@ load_neff = 1;
 
 ![alt text](matlab/effective_neff.png)
 
-## PEC边界结果
+<!-- ## PEC边界结果
 
 ![text](matlab/Pade_1_pec_Et.gif) 
 ![text](matlab/Pade_3_pec_Et.gif) 
-![text](matlab/Pade_6_pec_Et.gif)
+![text](matlab/Pade_6_pec_Et.gif) -->
 
 ## PML边界结果
 
+### Pade(1,0)
 ![alt text](matlab/Pade_1_pml_Et.gif)
+![alt text](matlab/Y=0_Pade_1_pml_Et.gif)
+
+
+### Pade(2,2)
 ![alt text](matlab/Pade_3_pml_Et.gif)
+![alt text](matlab/Y=0_Pade_3_pml_Et.gif)
+
+### Pade(5,5)
 ![alt text](matlab/Pade_6_pml_Et.gif)
+![alt text](matlab/Y=0_Pade_6_pml_Et.gif)

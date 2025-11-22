@@ -3,6 +3,7 @@
 close all;
 clear ;
 clc;
+
 %%
 lx = 20;
 ly = 10;
@@ -18,7 +19,6 @@ plot_incident_field = 0;
 plot_structure = 0;
 dynamic_neff = 1;
 load_neff = 1;
-
 %%
 k0 = 2 * pi / lambda;
 cx = round(lx/dx);
@@ -40,6 +40,7 @@ xs = [-lx / 2, lx / 2];
 ys = [-ly / 2, ly / 2];
 
 pade_s = ["(1 0)", "(1 1)", "(2 2)", "(3 3)", "(4 4)", "(5 5)"];
+
 %%  广角参数
 Mm = {; ...
     [1, 0] / 2; ...
@@ -58,7 +59,6 @@ Nn = {; ...
     [1, 40, 240, 448, 256] / 256; ...
     [1, 60, 560, 1792, 2304, 1024] / 1024; ...
     };
-
 %% 加载介电常数
 
 eps__ = importdata("../rsoft/bptmp.dat", " ", 5).data;
@@ -78,14 +78,14 @@ if plot_structure
         ylabel("Y (um)")
         title("eps Z="+num2str(z(sidx))+"um")
         colorbar
-        axis equal
-        % set(gcf , "OuterPosition" , get(0, "ScreenSize"))
-        % set(gcf,"position",[50,50,1000,700])
+        % axis equal
+        set(gcf , "OuterPosition" , get(0, "ScreenSize"))
         % drawnow
         exportgraphics(gcf , fp , "Append",true)
     end
     close
 end
+
 %% 矩阵
 nt = nx * ny;
 I = ones(nt, 1);
@@ -108,51 +108,61 @@ end
 
 Vy = spdiags([-I, I]/dy_, [-nx, 0], nt, nt);
 Vy(1:nx, :) = 0;
+%% 计算输入场和参考折射率
+% incident_eletric_field_and_reference;
 %% 吸收边界
 layer = 10;
 m = 3;
 R0 = 1e-8;
-sigma_x = (m + 1)   / (2  * dx_ * layer) * log(R0);
-sigma_y = (m + 1)   / (2  * dy_* layer) * log(R0);
+sigma_x = (m + 1) / (2 * dx_ * layer) * log(R0);
+sigma_y = (m + 1) / (2 * dy_ * layer) * log(R0);
 
 sx = ones(nx, ny);
 sy = ones(nx, ny);
 
-rho = ((layer:-1:1)/layer)'.^m;
+rho = ((layer:-1:1) / layer)'.^m;
 
-sx(1:layer, :) = 1 + 1i * sigma_x *rho * ones(1, ny);
-sx(nx:-1:nx-layer+1, :) = 1 + 1i * sigma_x *rho * ones(1, ny);
+sx(1:layer, :) = 1 + 1i * sigma_x * rho * ones(1, ny);
+sx(nx:-1:nx-layer+1, :) = 1 + 1i * sigma_x * rho * ones(1, ny);
 
 sy(:, 1:layer) = 1 + 1i * sigma_y * ones(nx, 1) * rho';
 sy(:, ny:-1:ny-layer+1) = 1 + 1i * sigma_y * ones(nx, 1) * rho';
 
-sx_ux = 1./interp1(x, sx, xm, "spline", "extrap");
-sy_uy = 1./interp1(y, sy.', ym, "spline", "extrap").';
+sx_ux = 1 ./ interp1(x, sx, xm, "spline", "extrap");
+sy_uy = 1 ./ interp1(y, sy.', ym, "spline", "extrap").';
 % sx_ux(nx,:) = sx_ux(nx-1,:);
 % sy_uy(:,ny) = sy_uy(:,ny-1);
 
-sx_vx = 1./sx;
-sy_vy = 1./sy;
+sx_vx = 1 ./ sx;
+sy_vy = 1 ./ sy;
 
 Ux = spdiags(sx_ux(:), 0, nt, nt) * Ux;
 Uy = spdiags(sy_uy(:), 0, nt, nt) * Uy;
 Vx = spdiags(sx_vx(:), 0, nt, nt) * Vx;
 Vy = spdiags(sy_vy(:), 0, nt, nt) * Vy;
+
 %% 写入文件
 
 fp_et = "Pade_" + num2str(pade_order) + "_pml_Et.gif";
 delete(fp_et);
+
 %%
 if load_neff
 
     neff_list = importdata("neff_list.dat");
 
 end
+
+%% 加载入射场
+f = "ex_inc_mode_" + num2str(input_mode_select) + ".txt";
+ex_inc = importdata(f);
+f = "ey_inc_mode_" + num2str(input_mode_select) + ".txt";
+ey_inc = importdata(f);
+
+phi = [ex_inc(:); ey_inc(:)];
 %%
 
-
 for cidx = 1:nz
-
     %% 计算输入场
 
     eps_z = eps(:, :, cidx);
@@ -181,63 +191,63 @@ for cidx = 1:nz
 
     Q = [Qxx, Qxy; Qyx, Qyy];
 
-    if cidx == 1 || (dynamic_neff && ~load_neff)
-        nmodes_max = 50;
-        [et_, d] = eigs(-P*Q, nmodes_max, max(eps_z, [], "all"));
-        neff_ = sqrt(diag(d));
-        sd = ones(nmodes_max, 1);
-        for i = 1:nmodes_max - 1
-            if abs(neff_(i)-neff_(i+1)) < 1e-5
-                % sd(i) = 0;
-                % sd(i+1) = 0;
-            end
-        end
-        neff = neff_(sd > 0);
-        et = et_(:, sd > 0);
-        ex = reshape(et(1:nt, :), nx, ny, []);
-        ey = reshape(et(nt+1:2*nt, :), nx, ny, []);
-
-        %%
-
-        ex_inc = ex(:, :, input_mode_select);
-        ey_inc = ey(:, :, input_mode_select);
-
-        if cidx == 1
-            phi = et(:, input_mode_select);
-        end
-
-        K0 = neff(input_mode_select);
-
-        if plot_incident_field && cidx == 1
-            figure
-            subplot(211)
-            pcolor(xm, y, ex_inc')
-            title("Ex")
-            xlabel("X (um)")
-            ylabel("Y (um)")
-            shading interp
-            colormap jet
-            colorbar
-            axis equal
-
-            subplot(212)
-            pcolor(x, ym, ey_inc')
-            title("Ey")
-            xlabel("X (um)")
-            ylabel("Y (um)")
-            shading interp
-            colormap jet
-            colorbar
-            axis equal
-
-            sgtitle("横向电场 模式#"+num2str(input_mode_select)+" 有效折射率="+num2str(K0))
-            % set(gcf , "ourt" , get(0, "ScreenSize"))
-            % set(gcf , "Position",[50,50 1200 800])
-            exportgraphics(gcf , "incident_eletric_field.png");
-            close;
-        end
-
-    end
+    % if cidx == 1 || (dynamic_neff && ~load_neff)
+    %     nmodes_max = 50;
+    %     [et_, d] = eigs(-P*Q, nmodes_max, max(eps_z, [], "all"));
+    %     neff_ = sqrt(diag(d));
+    %     sd = ones(nmodes_max, 1);
+    %     for i = 1:nmodes_max - 1
+    %         if abs(neff_(i)-neff_(i+1)) < 1e-5
+    %             % sd(i) = 0;
+    %             % sd(i+1) = 0;
+    %         end
+    %     end
+    %     neff = neff_(sd > 0);
+    %     et = et_(:, sd > 0);
+    %     ex = reshape(et(1:nt, :), nx, ny, []);
+    %     ey = reshape(et(nt+1:2*nt, :), nx, ny, []);
+    %
+    %     %%
+    %
+    %     ex_inc = ex(:, :, input_mode_select);
+    %     ey_inc = ey(:, :, input_mode_select);
+    %
+    %     if cidx == 1
+    %         phi = et(:, input_mode_select);
+    %     end
+    %
+    %     K0 = neff(input_mode_select);
+    %
+    %     if plot_incident_field && cidx == 1
+    %         figure
+    %         subplot(211)
+    %         pcolor(xm, y, ex_inc')
+    %         title("Ex")
+    %         xlabel("X (um)")
+    %         ylabel("Y (um)")
+    %         shading interp
+    %         colormap jet
+    %         colorbar
+    %         axis equal
+    %
+    %         subplot(212)
+    %         pcolor(x, ym, ey_inc')
+    %         title("Ey")
+    %         xlabel("X (um)")
+    %         ylabel("Y (um)")
+    %         shading interp
+    %         colormap jet
+    %         colorbar
+    %         axis equal
+    %
+    %         sgtitle("横向电场 模式#"+num2str(input_mode_select)+" 有效折射率="+num2str(K0))
+    %         % set(gcf , "ourt" , get(0, "ScreenSize"))
+    %         % set(gcf , "Position",[50,50 1200 800])
+    %         exportgraphics(gcf , "incident_eletric_field.png");
+    %         close;
+    %     end
+    %
+    % end
 
     if load_neff
         K0 = neff_list(cidx);
@@ -245,6 +255,7 @@ for cidx = 1:nz
 
 
     fprintf("K0=%d\n", K0);
+
     %%
 
     SP = -speye(2*nt) - P * Q / K0^2;
@@ -269,7 +280,7 @@ for cidx = 1:nz
     shading interp
     colormap jet
     colorbar
-    axis equal
+    % axis equal
     subplot(212)
     pcolor(x, ym, abs(reshape(phi(nt+1:2*nt), nx, ny))');
     title("Ey Amplititude Z="+num2str(z(cidx))+" um")
@@ -278,33 +289,46 @@ for cidx = 1:nz
     shading interp
     colormap jet
     colorbar
-    axis equal
+    % axis equal
     sgtitle("Pade="+pade_s(pade_order))
 
-    % set(gcf ,"OuterPosition",get(0, "ScreenSize"))
+    set(gcf ,"OuterPosition",get(0, "ScreenSize"))
 
-    % drawnow;
+    drawnow;
     exportgraphics(gcf , fp_et , "Append",true)
 
-    Field.Ex(:, :,cidx) =reshape(phi(1:nt) , nx , ny)  ;
-    Field.Ey(:, :,cidx) = reshape(phi(nt+1:2*nt) , nx , ny)  ;
+    Field.Ex(:, :, cidx) = reshape(phi(1:nt), nx, ny);
+    Field.Ey(:, :, cidx) = reshape(phi(nt+1:2*nt), nx, ny);
     Field.neff(cidx, 1) = K0;
 
 
 end
-
 %%
 neff_list = Field.neff;
 save("neff_list.dat", "neff_list", "-ascii")
+
+%%
 %%
 
-plot(z, neff_list)
-
-xlabel("Z (um)")
-ylabel("有效折射率")
-exportgraphics(gcf , "effective_neff.png")
-
-
-%% 
-
 % volshow(abs(Field.Ex))
+
+subplot(211)
+pcolor(z, xm, squeeze(abs(Field.Ex(:, (ny + 1)/2, :))));
+shading interp
+colormap jet
+colorbar
+xlabel("Z um")
+ylabel("X um")
+title("Ex Amplititude")
+subplot(212)
+pcolor(z, xm, squeeze(abs(Field.Ey(:, (ny + 1)/2, :))));
+shading interp
+colormap jet
+colorbar
+xlabel("Z um")
+ylabel("X um")
+title("Ey Amplititude")
+f = "Pade=" + pade_s(pade_order) + sprintf("Y=0um处横场")
+sgtitle(f)
+set(gcf, "outerPosition", get(0, "ScreenSize"))
+exportgraphics(gcf , "Y=0_"+fp_et)

@@ -17,3 +17,17 @@ Message: NZ=1001, NX=201, NY=101, Estimated Time = 0.276 min
 Message: Actual Computation Time = 0.001 min
 Message: NZ=101, NX=201, NY=101, Estimated Time = 0.028 min
 Message: NZ=101, NX=201, NY=101, Estimated Time = 0.028 min
+Message: NZ=1001, NX=201, NY=101, Estimated Time = 0.276 min
+Message: Actual Computation Time = 0.002 min
+Message: NZ=1001, NX=201, NY=101, Estimated Time = 0.276 min
+Message: Actual Computation Time = 0.002 min
+Message: NZ=1001, NX=201, NY=101, Estimated Time = 0.276 min
+Message: Actual Computation Time = 0.002 min
+Message: NZ=1001, NX=201, NY=101, Estimated Time = 0.276 min
+Message: Actual Computation Time = 0.002 min
+Message: NZ=1001, NX=201, NY=101, Estimated Time = 0.276 min
+Message: Actual Computation Time = 0.002 min
+Message: NZ=1001, NX=201, NY=101, Estimated Time = 0.276 min
+Message: Actual Computation Time = 0.002 min
+Message: NZ=1001, NX=201, NY=101, Estimated Time = 0.276 min
+Message: Actual Computation Time = 0.002 min
